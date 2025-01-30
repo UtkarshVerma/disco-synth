@@ -1,0 +1,8 @@
+session_name: rtos-a
+windows:
+  - window_name: editor
+    panes:
+      - nvim -c "lua require('persistence').load()"
+  - window_name: shell
+    panes:
+      - blank

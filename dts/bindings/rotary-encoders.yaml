@@ -1,0 +1,16 @@
+description: A set of rotary encoders
+compatible: rotary-encoders
+
+child-binding:
+  description: A rotary encoder with quadrature-encoded outputs
+  properties:
+    a-pin:
+      type: phandle-array
+      specifier-space: gpio
+      required: true
+      description: GPIO handle for the A pin
+    b-pin:
+      type: phandle-array
+      specifier-space: gpio
+      required: true
+      description: GPIO handle for the B pin

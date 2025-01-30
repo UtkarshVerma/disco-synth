@@ -1,0 +1,17 @@
+description: A set of three position switches
+compatible: three-pos-switches
+
+child-binding:
+  description: A switch that can take three position
+
+  properties:
+    down-pin:
+      type: phandle-array
+      specifier-space: gpio
+      required: true
+      description: GPIO handle for the down pin
+    up-pin:
+      type: phandle-array
+      specifier-space: gpio
+      required: true
+      description: GPIO handle for the up pin

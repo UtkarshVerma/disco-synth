@@ -1,0 +1,161 @@
+// NOTE:
+// - PE14 doesn't seem to be hooked up on the board, so SW2 doesn't do DOWN.
+
+/ {
+    chosen {
+        led,debug_0 = &green_led_4;
+        led,debug_1 = &orange_led_3;
+        led,debug_2 = &red_led_5;
+        led,debug_3 = &blue_led_6;
+        led,status_0 = &led_d1;
+        led,status_1 = &led_d8;
+        led,status_2 = &led_d3;
+        led,status_3 = &led_d4;
+        led,status_4 = &led_d7;
+
+        enc,osc_wave = &enc_s3;
+        enc,osc_pitch = &enc_s1;
+        enc,osc_volume = &enc_s4;
+
+        audio,i2s = &i2s3;
+        audio,codec = &audio_codec;
+
+        // enc,lfo_freq = &enc_s2;
+        // enc,lfo_amp = &enc_s5;
+        // enc,lfo_amp_rel = &enc_s6;
+        // enc_amp_mod_att = &enc_lfo_freq;
+        // enc_amp_mod_sus = &enc_lfo_amp;
+
+        sw,osc_sel = &sw_osc1;
+        sw,effects_sel = &sw1;
+        sw,effects_target = &sw2;
+        sw,effects_conf = &sw3;
+    };
+
+    switches {
+        compatible = "three-pos-switches";
+
+        sw_osc1: sw_osc1 {
+            down-pin = <&gpioe 8 GPIO_ACTIVE_HIGH>;
+            up-pin = <&gpioe 9 GPIO_ACTIVE_HIGH>;
+        };
+
+        sw1: sw1 {
+            down-pin = <&gpioe 12 GPIO_ACTIVE_HIGH>;
+            up-pin = <&gpioe 13 GPIO_ACTIVE_HIGH>;
+        };
+
+        sw2: sw2 {
+            down-pin = <&gpioe 14 GPIO_ACTIVE_HIGH>;
+            up-pin = <&gpioe 15 GPIO_ACTIVE_HIGH>;
+        };
+
+        sw3: sw3 {
+            down-pin = <&gpioe 10 GPIO_ACTIVE_HIGH>;
+            up-pin = <&gpioe 11 GPIO_ACTIVE_HIGH>;
+        };
+    };
+
+    encoders {
+        compatible = "rotary-encoders";
+
+        enc_s3: s3 {
+            a-pin = <&io_expander 0 GPIO_ACTIVE_HIGH>;
+            b-pin = <&io_expander 1 GPIO_ACTIVE_HIGH>;
+        };
+
+        enc_s1: s1 {
+            a-pin = <&io_expander 2 GPIO_ACTIVE_HIGH>;
+            b-pin = <&io_expander 3 GPIO_ACTIVE_HIGH>;
+        };
+
+        enc_s4: s4 {
+            a-pin = <&io_expander 4 GPIO_ACTIVE_HIGH>;
+            b-pin = <&io_expander 5 GPIO_ACTIVE_HIGH>;
+        };
+        enc_s2: s2 {
+            a-pin = <&io_expander 6 GPIO_ACTIVE_HIGH>;
+            b-pin = <&io_expander 7 GPIO_ACTIVE_HIGH>;
+        };
+        enc_s5: s5 {
+            a-pin = <&io_expander 8 GPIO_ACTIVE_HIGH>;
+            b-pin = <&io_expander 9 GPIO_ACTIVE_HIGH>;
+        };
+        enc_s6: s6 {
+            a-pin = <&io_expander 10 GPIO_ACTIVE_HIGH>;
+            b-pin = <&io_expander 11 GPIO_ACTIVE_HIGH>;
+        };
+    };
+
+    leds {
+        compatible = "gpio-leds";
+
+        led_d1: d1 {
+            gpios = <&gpiod 0 GPIO_ACTIVE_HIGH>;
+        };
+        led_d8: d8 {
+            gpios = <&gpiod 1 GPIO_ACTIVE_HIGH>;
+        };
+        led_d3: d3 {
+            gpios = <&gpiod 2 GPIO_ACTIVE_HIGH>;
+        };
+        led_d4: d4 {
+            gpios = <&gpioe 3 GPIO_ACTIVE_HIGH>;
+        };
+        led_d7: d7 {
+            gpios = <&gpioe 5 GPIO_ACTIVE_HIGH>;
+        };
+    };
+};
+
+&zephyr_udc0 {
+    cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
+	};
+};
+
+&i2c1 {
+    status = "okay";
+
+    clock-frequency = <I2C_BITRATE_FAST>;
+    pinctrl-0 = <&i2c1_sda_pb9 &i2c1_scl_pb6>;
+    pinctrl-names = "default";
+
+    io_expander: pca9555@20 {
+        compatible = "nxp,pca95xx";
+        reg = <0x20>;
+
+        gpio-controller;
+        #gpio-cells = <2>;
+        ngpios = <16>;
+        interrupt-gpios = <&gpiob 4 GPIO_ACTIVE_LOW>;
+    };
+
+	audio_codec: cs43l22@4a {
+		compatible = "cirrus,cs43l22";
+		reg = <0x4a>;
+
+		reset-gpios = <&gpiod 4 0>;
+	};
+};
+
+&dma1 {
+    status = "okay";
+};
+
+&plli2s {
+    status = "okay";
+
+    mul-n = <271>;
+    div-r = <2>;
+};
+
+&i2s3 {
+    status = "okay";
+
+    mck-enabled;
+    pinctrl-0 = <&i2s3_ws_pa4 &i2s3_ck_pc10 &i2s3_sd_pc12 &i2s3_mck_pc7>;
+    clocks = <&rcc STM32_CLOCK_BUS_APB1 0x00008000>,
+             <&rcc STM32_SRC_PLLI2S_R I2S_SEL(0)>;
+    pinctrl-names = "default";
+};
